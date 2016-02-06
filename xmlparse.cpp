@@ -89,8 +89,6 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
         if(token == QXmlStreamReader::StartElement)
         {
 
-
-
             //PROGRAM FLAG SECTION: This is for the program to know which section of the XML it is parsing
 
             if(xml.name() == "subsystems")//Subsystems Parsing Rule
@@ -100,35 +98,17 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
             if(xml.name() == "subsystem")//Subsystem Parsing Rule
             {
-                sys_1.subsystems.push_back(subsystem());
-                activesect = 0;
-                qDebug() << "Subsystem Recognized";//DEBUG
+                processSubsystem(sys_1);
             }
 
             if(xml.name() == "host")//Host Parsing Rule
             {
-                sys_1.subsystems[subcount].hosts.push_back(host());
-                activesect = 1;
-                qDebug() << "Host Recognized";//DEBUG
+                processHost(sys_1);
             }
 
             if(xml.name() == "interface")//Interface Parsing Rule
             {
-                if (activesect == 0)
-                {
-                    inter_stat = 0;
-                    qDebug() << "Subsystem Interface Recognized";//DEBUG
-                }
-                else if (activesect == 1)
-                {
-                    inter_stat = 1;
-                    qDebug() << "Host Interface Recognized";//DEBUG
-                }
-                else if (activesect == 2)
-                {
-                    inter_stat = 2;
-                    qDebug() << "Process Interface Recognized";//DEBUG
-                }
+                processInterface();
             }
 
             //END PROGRAM FLAG SECTION
@@ -137,19 +117,9 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
 
 
-
             if(xml.name() == "name") //Make cases for all sections for setting name
             {
-                if (activesect == 0) //Check for subsystem
-                {
-                    sys_1.subsystems[subcount].name = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " name:" << sys_1.subsystems[subcount].name;
-                }
-                else if (activesect == 1) //Check for host
-                {
-                    sys_1.subsystems[subcount].hosts[hostcount].name = xml.readElementText();
-                    qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;
-                }
+                processName(sys_1, xml);
             }
 
 
@@ -160,38 +130,22 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
             if(xml.name() == "style") //Make cases for all sections for setting style
             {
-                if (activesect == 0) //Check for subsystem
-                {
-                    sys_1.subsystems[subcount].subsysShape.style = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " style:" << sys_1.subsystems[subcount].subsysShape.style;
-                }
+                processStyle(sys_1, xml);
             }
 
             if(xml.name() == "color") //Make cases for all sections of setting color
             {
-                if (activesect == 0) //Check for subsystem
-                {
-                    sys_1.subsystems[subcount].subsysShape.color = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " color:" << sys_1.subsystems[subcount].subsysShape.color;
-                }
+                processColor(sys_1, xml);
             }
 
             if(xml.name() == "border") //Make cases for all sections of setting border
             {
-                if (activesect == 0) //Check for subsystem
-                {
-                    sys_1.subsystems[subcount].subsysShape.border = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " border:" << sys_1.subsystems[subcount].subsysShape.border;
-                }
+                processBorder(sys_1, xml);
             }
 
             if(xml.name() == "image_url") //Make cases for all sections of setting the image_url
             {
-                if (activesect == 0) //Check for subsystem
-                {
-                    sys_1.subsystems[subcount].subsysShape.image_url = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " imageURL:" << sys_1.subsystems[subcount].subsysShape.image_url;
-                }
+                processImage_URL(sys_1, xml);
             }
 
             //END SHAPE SECTION
@@ -205,25 +159,17 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
             if(xml.name() == "label") //Make cases for all sections of setting interface label
             {
-                if (inter_stat == 0) //Check for subsystem interface
-                {
-                    sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
-                    qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
-                }
+                processLabel(sys_1, xml);
             }
 
             if(xml.name() == "target") //Make cases for all sections of setting interface target
             {
-                if (inter_stat == 0) //Check for subsystem interface
-                {
-                    sys_1.subsystems[subcount].subInterface.target = xml.readElementText();
-                }
+                processTarget(sys_1, xml);
             }
 
-
-
-
             //END INTERFACE SECTION
+
+
             else
             {
                 //xml.readNext();
@@ -241,6 +187,120 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
         }
     }
 
+}
 
 
+//PROGRAM FLAG SECTION
+void XMLParse::processSubsystem(sys &sys_1)
+{
+    sys_1.subsystems.push_back(subsystem());
+    activesect = 0;
+    qDebug() << "Subsystem Recognized";//DEBUG
+}
+
+
+void XMLParse::processHost(sys &sys_1)
+{
+    sys_1.subsystems[subcount].hosts.push_back(host());
+    activesect = 1;
+    qDebug() << "Host Recognized";//DEBUG
+}
+
+
+void XMLParse::processInterface()
+{
+    if (activesect == 0)
+    {
+        inter_stat = 0;
+        qDebug() << "Subsystem Interface Recognized";//DEBUG
+    }
+    else if (activesect == 1)
+    {
+        inter_stat = 1;
+        qDebug() << "Host Interface Recognized";//DEBUG
+    }
+    else if (activesect == 2)
+    {
+        inter_stat = 2;
+        qDebug() << "Process Interface Recognized";//DEBUG
+    }
+}
+
+//END PROGRAM FLAG SECTION
+
+
+
+void XMLParse::processName(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (activesect == 0) //Check for subsystem
+    {
+        sys_1.subsystems[subcount].name = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " name:" << sys_1.subsystems[subcount].name;
+    }
+    else if (activesect == 1) //Check for host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].name = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;
+    }
+}
+
+
+
+//SHAPE SECTION
+void XMLParse::processStyle(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (activesect == 0) //Check for subsystem
+    {
+        sys_1.subsystems[subcount].subsysShape.style = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " style:" << sys_1.subsystems[subcount].subsysShape.style;
+    }
+}
+
+void XMLParse::processColor(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (activesect == 0) //Check for subsystem
+    {
+        sys_1.subsystems[subcount].subsysShape.color = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " color:" << sys_1.subsystems[subcount].subsysShape.color;
+    }
+}
+
+void XMLParse::processBorder(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (activesect == 0) //Check for subsystem
+    {
+        sys_1.subsystems[subcount].subsysShape.border = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " border:" << sys_1.subsystems[subcount].subsysShape.border;
+    }
+}
+
+void XMLParse::processImage_URL(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (activesect == 0) //Check for subsystem
+    {
+        sys_1.subsystems[subcount].subsysShape.image_url = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " imageURL:" << sys_1.subsystems[subcount].subsysShape.image_url;
+    }
+}
+//END SHAPE SECTION
+
+
+
+//INTERFACE SECTION
+void XMLParse::processLabel(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label;
+    }
+}
+
+void XMLParse::processTarget(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.target = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << " Interface Target: " << sys_1.subsystems[subcount].subInterface.target;
+    }
 }

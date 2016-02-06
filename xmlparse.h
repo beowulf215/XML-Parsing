@@ -42,7 +42,6 @@ class XMLParse
         QString group;
         shape procShape;
         QString status_path;
-        //QVector<interface> procInterfaces; //Dynamic array of process interfaces
         interface procInterface;
     };
 
@@ -52,8 +51,6 @@ class XMLParse
         QString name;
         QString dns;
         shape hostShape;
-        QString status_path;
-        //QVector<interface> hostinterfaces; //Dynamic array of host interfaces
         QVector<process> processes; //Dynamic array of process structures
     };
 
@@ -63,7 +60,6 @@ class XMLParse
         QString name;
         shape subsysShape;
         interface subInterface;
-        //QVector<interface> subInterfaces; //Dynamic array of subsystem interfaces
         QVector<host> hosts; //Dynamic array of host structures
     };
 
@@ -78,7 +74,19 @@ class XMLParse
 public:
     XMLParse();
     void Parse();
+    void processSubsystem(sys &sys_1);
+    void processHost(sys &sys_1);
+    void processInterface();
 
+    void processName(sys &sys_1, QXmlStreamReader &xml);
+
+    void processStyle(sys &sys_1, QXmlStreamReader &xml);
+    void processColor(sys &sys_1, QXmlStreamReader &xml);
+    void processBorder(sys &sys_1, QXmlStreamReader &xml);
+    void processImage_URL(sys &sys_1, QXmlStreamReader &xml);
+
+    void processLabel(sys &sys_1, QXmlStreamReader &xml);
+    void processTarget(sys &sys_1, QXmlStreamReader &xml);
 
 private:
 
