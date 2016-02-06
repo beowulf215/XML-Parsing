@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QDir>
 #include <QVector>
+#include <QTextCodec>
 
 class XMLParse
 {
@@ -16,6 +17,7 @@ class XMLParse
         QString style;
         QString color;
         QString border;
+        QString image_url;
     };
 
     struct attribute
@@ -26,6 +28,7 @@ class XMLParse
 
     struct interface
     {
+        int attcount;
         QString label;
         QString target;
         QString status_path;
@@ -39,27 +42,34 @@ class XMLParse
         QString group;
         shape procShape;
         QString status_path;
+        //QVector<interface> procInterfaces; //Dynamic array of process interfaces
         interface procInterface;
     };
 
     struct host
     {
+        int processcount;
         QString name;
         QString dns;
         shape hostShape;
+        QString status_path;
+        //QVector<interface> hostinterfaces; //Dynamic array of host interfaces
         QVector<process> processes; //Dynamic array of process structures
     };
 
     struct subsystem
     {
+        int hostcount;
         QString name;
         shape subsysShape;
         interface subInterface;
+        //QVector<interface> subInterfaces; //Dynamic array of subsystem interfaces
         QVector<host> hosts; //Dynamic array of host structures
     };
 
     struct sys
     {
+        int subsyscnt;
         QVector<subsystem> subsystems; //Dynamic array of subsystem structures
     };
 
