@@ -10,6 +10,8 @@ int attcount;
 int activesect; //Shows which area the code is parsing from in the xml
 int inter_stat; //Shows which interface is being read in the xml
 
+bool int_active; //Shows whether or not the xml is currently parsing inside data from an interface
+
 /* GUIDE FOR ACTIVESECT
  * 0 = Subsystem
  * 1 = Host
@@ -31,6 +33,7 @@ XMLParse::XMLParse()
     attcount = 0;
     activesect = 0;
     inter_stat = 0;
+    int_active = false;
 }
 
 
@@ -96,6 +99,12 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
                 qDebug() << "Subsystems Recognized";//DEBUG
             }
 
+            if(xml.name() == "attributes")//Attributes Parsing Rule
+            {
+                if (inter_stat == 0)//Check for Subsystem Interface
+                    qDebug() << "Subsystem Interface Attributes Recognized";//DEBUG
+            }
+
             if(xml.name() == "subsystem")//Subsystem Parsing Rule
             {
                 processSubsystem(sys_1);
@@ -116,17 +125,23 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
 
 
+            //COMMON SECTION: Tags in the xml that are located in different tiers of the SSV
 
             if(xml.name() == "name") //Make cases for all sections for setting name
             {
                 processName(sys_1, xml);
             }
 
+            if(xml.name() == "status_path") //Make cases for all sections for setting status_path
+            {
+                processStatus_Path(sys_1, xml);
+            }
 
 
+            //END COMMON SECTION
 
 
-            //SHAPE SECTION
+            //SHAPE SECTION: Tags that are synonymous with the shape of the SSV node
 
             if(xml.name() == "style") //Make cases for all sections for setting style
             {
@@ -154,7 +169,7 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
 
 
-            //INTERFACE SECTION
+            //INTERFACE SECTION: Tags that are synonymous with the interface sections of the SSV
 
 
             if(xml.name() == "label") //Make cases for all sections of setting interface label
@@ -165,6 +180,11 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
             if(xml.name() == "target") //Make cases for all sections of setting interface target
             {
                 processTarget(sys_1, xml);
+            }
+
+            if(xml.name() == "direction") //Make cases for all sections of setting interface direction
+            {
+                processDirection(sys_1, xml);
             }
 
             //END INTERFACE SECTION
@@ -179,6 +199,7 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
         else if (token == QXmlStreamReader::EndElement)
         {
             qDebug() << "FOUND END";
+            processEndTag(sys_1, xml);
         }
 
         else
@@ -209,6 +230,8 @@ void XMLParse::processHost(sys &sys_1)
 
 void XMLParse::processInterface()
 {
+    int_active = true;
+
     if (activesect == 0)
     {
         inter_stat = 0;
@@ -229,21 +252,32 @@ void XMLParse::processInterface()
 //END PROGRAM FLAG SECTION
 
 
+//COMMON SECTION
 
 void XMLParse::processName(sys &sys_1, QXmlStreamReader &xml)
 {
     if (activesect == 0) //Check for subsystem
     {
         sys_1.subsystems[subcount].name = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " name:" << sys_1.subsystems[subcount].name;
+        qDebug() << "Subsystem #" << subcount << " name:" << sys_1.subsystems[subcount].name;//DEBUG
     }
     else if (activesect == 1) //Check for host
     {
         sys_1.subsystems[subcount].hosts[hostcount].name = xml.readElementText();
-        qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;
+        qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;//DEBUG
     }
 }
 
+void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (int_active && inter_stat == 0) //Case for checking for an active interface within a subsystem
+    {
+        sys_1.subsystems[subcount].subInterface.status_path = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << "Interface Status Path:" << sys_1.subsystems[subcount].subInterface.status_path;//DEBUG
+    }
+}
+
+//END COMMON SECTION
 
 
 //SHAPE SECTION
@@ -252,7 +286,7 @@ void XMLParse::processStyle(sys &sys_1, QXmlStreamReader &xml)
     if (activesect == 0) //Check for subsystem
     {
         sys_1.subsystems[subcount].subsysShape.style = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " style:" << sys_1.subsystems[subcount].subsysShape.style;
+        qDebug() << "Subsystem #" << subcount << " style:" << sys_1.subsystems[subcount].subsysShape.style;//DEBUG
     }
 }
 
@@ -261,7 +295,7 @@ void XMLParse::processColor(sys &sys_1, QXmlStreamReader &xml)
     if (activesect == 0) //Check for subsystem
     {
         sys_1.subsystems[subcount].subsysShape.color = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " color:" << sys_1.subsystems[subcount].subsysShape.color;
+        qDebug() << "Subsystem #" << subcount << " color:" << sys_1.subsystems[subcount].subsysShape.color;//DEBUG
     }
 }
 
@@ -270,7 +304,7 @@ void XMLParse::processBorder(sys &sys_1, QXmlStreamReader &xml)
     if (activesect == 0) //Check for subsystem
     {
         sys_1.subsystems[subcount].subsysShape.border = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " border:" << sys_1.subsystems[subcount].subsysShape.border;
+        qDebug() << "Subsystem #" << subcount << " border:" << sys_1.subsystems[subcount].subsysShape.border;//DEBUG
     }
 }
 
@@ -279,7 +313,7 @@ void XMLParse::processImage_URL(sys &sys_1, QXmlStreamReader &xml)
     if (activesect == 0) //Check for subsystem
     {
         sys_1.subsystems[subcount].subsysShape.image_url = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " imageURL:" << sys_1.subsystems[subcount].subsysShape.image_url;
+        qDebug() << "Subsystem #" << subcount << " imageURL:" << sys_1.subsystems[subcount].subsysShape.image_url;//DEBUG
     }
 }
 //END SHAPE SECTION
@@ -287,12 +321,13 @@ void XMLParse::processImage_URL(sys &sys_1, QXmlStreamReader &xml)
 
 
 //INTERFACE SECTION
+
 void XMLParse::processLabel(sys &sys_1, QXmlStreamReader &xml)
 {
     if (inter_stat == 0) //Check for subsystem interface
     {
         sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label;
+        qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label;//DEBUG
     }
 }
 
@@ -301,6 +336,36 @@ void XMLParse::processTarget(sys &sys_1, QXmlStreamReader &xml)
     if (inter_stat == 0) //Check for subsystem interface
     {
         sys_1.subsystems[subcount].subInterface.target = xml.readElementText();
-        qDebug() << "Subsystem #" << subcount << " Interface Target: " << sys_1.subsystems[subcount].subInterface.target;
+        qDebug() << "Subsystem #" << subcount << " Interface Target: " << sys_1.subsystems[subcount].subInterface.target;//DEBUG
+    }
+}
+
+void XMLParse::processDirection(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.direction = xml.readElementText();
+        qDebug() << "Subsystem #" << subcount << "Interface Direction: " << sys_1.subsystems[subcount].subInterface.direction;//DEBUG
+    }
+}
+
+//END INTERFACE SECTION
+
+
+
+
+void XMLParse::processEndTag(sys &sys_1, QXmlStreamReader &xml) //This is the code to handle the end tags of the xml file and to increase the appropriate counters
+{
+    if (xml.name() == "attributes")
+    {
+        attcount = 0;
+        qDebug() << "Attribute count reset!"; //DEBUG
+    }
+
+    if (xml.name() == "subsystem")
+    {
+        sys_1.subsyscnt++;
+        subcount++;
+        qDebug() << "Subsystem #" << subcount-1 << " complete! Starting Subsystem #" << subcount; //DEBUG
     }
 }

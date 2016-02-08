@@ -79,6 +79,7 @@ public:
     void processInterface();
 
     void processName(sys &sys_1, QXmlStreamReader &xml);
+    void processStatus_Path(sys &sys_1, QXmlStreamReader &xml);
 
     void processStyle(sys &sys_1, QXmlStreamReader &xml);
     void processColor(sys &sys_1, QXmlStreamReader &xml);
@@ -87,6 +88,9 @@ public:
 
     void processLabel(sys &sys_1, QXmlStreamReader &xml);
     void processTarget(sys &sys_1, QXmlStreamReader &xml);
+    void processDirection(sys &sys_1, QXmlStreamReader &xml);
+
+    void processEndTag(sys &sys_1, QXmlStreamReader &xml);
 
 private:
 
