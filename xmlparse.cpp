@@ -99,6 +99,16 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
                 qDebug() << "Subsystems Recognized";//DEBUG
             }
 
+            if(xml.name() == "hosts")//Hosts Parsing Rule
+            {
+                qDebug() << "Hosts Recognized";//DEBUG
+            }
+
+            if(xml.name() == "processes")//Processes Parsing Rule
+            {
+                qDebug() << "Processes Recognized";//DEBUG
+            }
+
             if(xml.name() == "attributes")//Attributes Parsing Rule
             {
                 if (inter_stat == 0)//Check for Subsystem Interface
@@ -118,6 +128,11 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
             if(xml.name() == "interface")//Interface Parsing Rule
             {
                 processInterface();
+            }
+
+            if(xml.name() == "process")//Process Parsing Rule
+            {
+                processProc(sys_1);
             }
 
             //END PROGRAM FLAG SECTION
@@ -166,7 +181,16 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
             //END SHAPE SECTION
 
 
+            //HOST SECTION: Tags that are synonymous with the host sections of the SSV
 
+            if(xml.name() == "dns")
+            {
+                processDNS(sys_1, xml);
+            }
+
+
+
+            //END HOST SECTION
 
 
             //INTERFACE SECTION: Tags that are synonymous with the interface sections of the SSV
@@ -227,6 +251,13 @@ void XMLParse::processHost(sys &sys_1)
     qDebug() << "Host Recognized";//DEBUG
 }
 
+void XMLParse::processProc(sys &sys_1)
+{
+    sys_1.subsystems[subcount].hosts[hostcount].processes.push_back(process());
+    activesect = 2;
+    qDebug() << "Process Recognized";//DEBUG
+}
+
 
 void XMLParse::processInterface()
 {
@@ -266,6 +297,11 @@ void XMLParse::processName(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].hosts[hostcount].name = xml.readElementText();
         qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;//DEBUG
     }
+    else if (activesect == 2) //Check for process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].name = xml.readElementText();
+        qDebug() << "Process #" << proccount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].name;//DEBUG
+    }
 }
 
 void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
@@ -274,6 +310,12 @@ void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subInterface.status_path = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << "Interface Status Path:" << sys_1.subsystems[subcount].subInterface.status_path;//DEBUG
+    }
+
+    if (!int_active && activesect == 2) //Case for checking for a process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path = xml.readElementText();
+        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;
     }
 }
 
@@ -288,6 +330,18 @@ void XMLParse::processStyle(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].subsysShape.style = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " style:" << sys_1.subsystems[subcount].subsysShape.style;//DEBUG
     }
+
+    if (activesect == 1) //Check for host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostShape.style = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Style:" << sys_1.subsystems[subcount].hosts[hostcount].hostShape.style;//DEBUG
+    }
+
+    if (activesect == 2) //Check for process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.style = xml.readElementText();
+        qDebug() << "Process #" << proccount << " Style:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.style;//DEBUG
+    }
 }
 
 void XMLParse::processColor(sys &sys_1, QXmlStreamReader &xml)
@@ -296,6 +350,18 @@ void XMLParse::processColor(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subsysShape.color = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " color:" << sys_1.subsystems[subcount].subsysShape.color;//DEBUG
+    }
+
+    if (activesect == 1) //Check for host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostShape.color = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Color:" << sys_1.subsystems[subcount].hosts[hostcount].hostShape.color;//DEBUG
+    }
+
+    if (activesect == 2) //Check for process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.color = xml.readElementText();
+        qDebug() << "Process #" << proccount << " Color:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.color;//DEBUG
     }
 }
 
@@ -306,6 +372,18 @@ void XMLParse::processBorder(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].subsysShape.border = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " border:" << sys_1.subsystems[subcount].subsysShape.border;//DEBUG
     }
+
+    if (activesect == 1) //Check for host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostShape.border = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " border:" << sys_1.subsystems[subcount].hosts[hostcount].hostShape.border;//DEBUG
+    }
+
+    if (activesect == 2) //Check for process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.border = xml.readElementText();
+        qDebug() << "Process #" << proccount << " border:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.border;//DEBUG
+    }
 }
 
 void XMLParse::processImage_URL(sys &sys_1, QXmlStreamReader &xml)
@@ -315,8 +393,32 @@ void XMLParse::processImage_URL(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].subsysShape.image_url = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " imageURL:" << sys_1.subsystems[subcount].subsysShape.image_url;//DEBUG
     }
+
+    if (activesect == 1) //Check for host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostShape.image_url = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " imageURL:" << sys_1.subsystems[subcount].hosts[hostcount].hostShape.image_url;//DEBUG
+    }
+
+    if (activesect == 2) //Check for process
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.image_url = xml.readElementText();
+        qDebug() << "Process #" << proccount << " imageURL:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procShape.image_url;//DEBUG
+    }
 }
 //END SHAPE SECTION
+
+
+
+//HOST SECTION
+
+void XMLParse::processDNS(sys &sys_1, QXmlStreamReader &xml)
+{
+    sys_1.subsystems[subcount].hosts[hostcount].dns = xml.readElementText();
+    qDebug() << "Host #" << hostcount << " dns:" << sys_1.subsystems[subcount].hosts[hostcount].dns;//DEBUG
+}
+
+//END HOST SECTION
 
 
 
@@ -367,5 +469,11 @@ void XMLParse::processEndTag(sys &sys_1, QXmlStreamReader &xml) //This is the co
         sys_1.subsyscnt++;
         subcount++;
         qDebug() << "Subsystem #" << subcount-1 << " complete! Starting Subsystem #" << subcount; //DEBUG
+    }
+
+    if (xml.name() == "interface")
+    {
+        int_active = false;
+        qDebug() << "Interface no longer active";
     }
 }

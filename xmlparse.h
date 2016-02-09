@@ -77,6 +77,7 @@ public:
     void processSubsystem(sys &sys_1);
     void processHost(sys &sys_1);
     void processInterface();
+    void processProc(sys &sys_1);
 
     void processName(sys &sys_1, QXmlStreamReader &xml);
     void processStatus_Path(sys &sys_1, QXmlStreamReader &xml);
@@ -85,6 +86,8 @@ public:
     void processColor(sys &sys_1, QXmlStreamReader &xml);
     void processBorder(sys &sys_1, QXmlStreamReader &xml);
     void processImage_URL(sys &sys_1, QXmlStreamReader &xml);
+
+    void processDNS(sys &sys_1, QXmlStreamReader &xml);
 
     void processLabel(sys &sys_1, QXmlStreamReader &xml);
     void processTarget(sys &sys_1, QXmlStreamReader &xml);
