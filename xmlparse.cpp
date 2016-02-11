@@ -236,6 +236,7 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
 
 //PROGRAM FLAG SECTION
+
 void XMLParse::processSubsystem(sys &sys_1)
 {
     sys_1.subsystems.push_back(subsystem());
@@ -280,6 +281,27 @@ void XMLParse::processInterface()
     }
 }
 
+void XMLParse::processAtt(sys &sys_1)
+{
+    if (inter_stat = 0)
+    {
+        sys_1.subsystems[subcount].subInterface.attributes.push_back(attribute());
+        qDebug() << "Subsystem Interface Attribute Recognized";
+    }
+
+    if (inter_stat = 1)
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes.push_back(attribute());
+        qDebug() << "Host Interface Attribute Recognized";
+    }
+
+    if (inter_stat = 2)
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes.push_back(attribute());
+        qDebug() << "Process Interface Attribute Recognized";
+    }
+}
+
 //END PROGRAM FLAG SECTION
 
 
@@ -316,6 +338,12 @@ void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path = xml.readElementText();
         qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;
+    }
+
+    if (int_active && activesect == 2) //Case for checking for an active interface within a subsystem
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path = xml.readElementText();
+        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << "for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;
     }
 }
 
@@ -431,6 +459,18 @@ void XMLParse::processLabel(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label;//DEBUG
     }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.label = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Interface Label: " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.label;//DEBUG
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.label = xml.readElementText();
+        qDebug() << "Process #" << proccount << " Interface Label: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.label;//DEBUG
+    }
 }
 
 void XMLParse::processTarget(sys &sys_1, QXmlStreamReader &xml)
@@ -440,6 +480,18 @@ void XMLParse::processTarget(sys &sys_1, QXmlStreamReader &xml)
         sys_1.subsystems[subcount].subInterface.target = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " Interface Target: " << sys_1.subsystems[subcount].subInterface.target;//DEBUG
     }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.target = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Interface Target: " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.target;//DEBUG
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.target= xml.readElementText();
+        qDebug() << "Process #" << proccount << " Interface Target: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.target;//DEBUG
+    }
 }
 
 void XMLParse::processDirection(sys &sys_1, QXmlStreamReader &xml)
@@ -448,6 +500,18 @@ void XMLParse::processDirection(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subInterface.direction = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << "Interface Direction: " << sys_1.subsystems[subcount].subInterface.direction;//DEBUG
+    }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.direction = xml.readElementText();
+        qDebug() << "Host #" << hostcount << "Interface Direction: " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.direction;//DEBUG
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.direction = xml.readElementText();
+        qDebug() << "Process #" << proccount << "Interface Direction: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.direction;//DEBUG
     }
 }
 

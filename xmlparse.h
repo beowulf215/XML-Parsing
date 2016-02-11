@@ -51,6 +51,7 @@ class XMLParse
         QString name;
         QString dns;
         shape hostShape;
+        interface hostInterface;
         QVector<process> processes; //Dynamic array of process structures
     };
 
@@ -78,6 +79,7 @@ public:
     void processHost(sys &sys_1);
     void processInterface();
     void processProc(sys &sys_1);
+    void processAtt(sys &sys_1);
 
     void processName(sys &sys_1, QXmlStreamReader &xml);
     void processStatus_Path(sys &sys_1, QXmlStreamReader &xml);
