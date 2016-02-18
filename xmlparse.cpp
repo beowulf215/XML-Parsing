@@ -125,6 +125,11 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
                 processHost(sys_1);
             }
 
+            if(xml.name() == "attribute")//Attribute Parsing Rule
+            {
+                processAtt(sys_1);
+            }
+
             if(xml.name() == "interface")//Interface Parsing Rule
             {
                 processInterface();
@@ -213,7 +218,34 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
             //END INTERFACE SECTION
 
+            //ATTRIBUTE SECTION: Tags that are synonymous with the attribute sections of the SSV
 
+            if(xml.name() == "key")
+            {
+                processKey(sys_1, xml);
+            }
+
+            if(xml.name() == "type")
+            {
+                processType(sys_1, xml);
+            }
+
+            if(xml.name() == "value")
+            {
+                processValue(sys_1, xml);
+            }
+
+
+            //END ATTRIBUTE SECTION
+
+            //PROCESS SECTION: Tags that are synonymous with the process sections of the SSV
+
+            if(xml.name() == "group")
+            {
+                processGroup(sys_1, xml);
+            }
+
+            //END PROCESS SECTION
             else
             {
                 //xml.readNext();
@@ -283,22 +315,22 @@ void XMLParse::processInterface()
 
 void XMLParse::processAtt(sys &sys_1)
 {
-    if (inter_stat = 0)
+    if (inter_stat == 0)
     {
         sys_1.subsystems[subcount].subInterface.attributes.push_back(attribute());
-        qDebug() << "Subsystem Interface Attribute Recognized";
+        qDebug() << "Subsystem Interface Attribute Recognized";//DEBUG
     }
 
-    if (inter_stat = 1)
+    if (inter_stat == 1)
     {
         sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes.push_back(attribute());
-        qDebug() << "Host Interface Attribute Recognized";
+        qDebug() << "Host Interface Attribute Recognized";//DEBUG
     }
 
-    if (inter_stat = 2)
+    if (inter_stat == 2)
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes.push_back(attribute());
-        qDebug() << "Process Interface Attribute Recognized";
+        qDebug() << "Process Interface Attribute Recognized";//DEBUG
     }
 }
 
@@ -337,13 +369,13 @@ void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
     if (!int_active && activesect == 2) //Case for checking for a process
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path = xml.readElementText();
-        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;
+        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;//DEBUG
     }
 
     if (int_active && activesect == 2) //Case for checking for an active interface within a subsystem
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path = xml.readElementText();
-        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << "for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;
+        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << "for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;//DEBUG
     }
 }
 
@@ -519,6 +551,85 @@ void XMLParse::processDirection(sys &sys_1, QXmlStreamReader &xml)
 
 
 
+//ATTRIBUTE SECTION
+
+void XMLParse::processKey(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.attributes[attcount].key = xml.readElementText();
+        qDebug() << "Key for attribute " << attcount << " for subsystem #" << subcount << ": " << sys_1.subsystems[subcount].subInterface.attributes[attcount].key;
+    }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].key = xml.readElementText();
+        qDebug() << "Key for attribute " << attcount << " for host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].key;
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].key = xml.readElementText();
+        qDebug() << "Key for attribute " << attcount << " for process #" << proccount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].key;
+    }
+}
+
+void XMLParse::processType(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.attributes[attcount].type = xml.readElementText();
+        qDebug() << "Type for attribute " << attcount << " for subsystem #" << subcount << ": " << sys_1.subsystems[subcount].subInterface.attributes[attcount].type;
+    }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].type = xml.readElementText();
+        qDebug() << "Type for attribute " << attcount << " for host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].type;
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].type = xml.readElementText();
+        qDebug() << "Type for attribute " << attcount << " for process #" << proccount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].type;
+    }
+}
+
+void XMLParse::processValue(sys &sys_1, QXmlStreamReader &xml)
+{
+    if (inter_stat == 0) //Check for subsystem interface
+    {
+        sys_1.subsystems[subcount].subInterface.attributes[attcount].value = xml.readElementText();
+        qDebug() << "Value for attribute " << attcount << " for subsystem #" << subcount << ": " << sys_1.subsystems[subcount].subInterface.attributes[attcount].value;
+    }
+
+    if (inter_stat == 1) //Check for host interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].value = xml.readElementText();
+        qDebug() << "Value for attribute " << attcount << " for host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attributes[attcount].value;
+    }
+
+    if (inter_stat == 2) //Check for process interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].value = xml.readElementText();
+        qDebug() << "Value for attribute " << attcount << " for process #" << proccount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].value;
+    }
+}
+
+
+//END ATTRIBUTE SECTION
+
+
+//PROCESS SECTION
+
+void XMLParse::processGroup(sys &sys_1, QXmlStreamReader &xml)
+{
+    sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].group = xml.readElementText();
+    qDebug() << "Group for Process "<< proccount << " for host " << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].group;
+}
+
+//END PROCESS SECTION
+
 
 void XMLParse::processEndTag(sys &sys_1, QXmlStreamReader &xml) //This is the code to handle the end tags of the xml file and to increase the appropriate counters
 {
@@ -533,6 +644,32 @@ void XMLParse::processEndTag(sys &sys_1, QXmlStreamReader &xml) //This is the co
         sys_1.subsyscnt++;
         subcount++;
         qDebug() << "Subsystem #" << subcount-1 << " complete! Starting Subsystem #" << subcount; //DEBUG
+    }
+
+    if (xml.name() == "host")
+    {
+        sys_1.subsystems[subcount].hostcount++;
+        hostcount++;
+        qDebug() << "Host #" << hostcount-1 << " complete! Starting Host #" << hostcount; //DEBUG
+    }
+
+    if (xml.name() == "hosts")
+    {
+        hostcount = 0;
+        qDebug() << "Host count reset!"; //DEBUG
+    }
+
+    if (xml.name() == "process")
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].processcount++;
+        proccount++;
+        qDebug() << "Process #" << proccount-1 << " complete! Starting Process #" << proccount; //DEBUG
+    }
+
+    if (xml.name() == "processes")
+    {
+        proccount = 0;
+        qDebug() << "Process count reset"; //DEBUG
     }
 
     if (xml.name() == "interface")

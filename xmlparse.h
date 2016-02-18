@@ -24,6 +24,7 @@ class XMLParse
     {
         QString key;
         QString type;
+        QString value;
     };
 
     struct interface
@@ -94,6 +95,12 @@ public:
     void processLabel(sys &sys_1, QXmlStreamReader &xml);
     void processTarget(sys &sys_1, QXmlStreamReader &xml);
     void processDirection(sys &sys_1, QXmlStreamReader &xml);
+
+    void processKey(sys &sys_1, QXmlStreamReader &xml);
+    void processType(sys &sys_1, QXmlStreamReader &xml);
+    void processValue(sys &sys_1, QXmlStreamReader &xml);
+
+    void processGroup(sys &sys_1, QXmlStreamReader &xml);
 
     void processEndTag(sys &sys_1, QXmlStreamReader &xml);
 
