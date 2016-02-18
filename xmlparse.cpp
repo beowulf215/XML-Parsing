@@ -1,8 +1,5 @@
 #include "xmlparse.h"
 
-
-QString xmlFilePath("/home/brian/Desktop/ssviso.xml");
-
 int subcount;
 int hostcount;
 int proccount;
@@ -25,7 +22,7 @@ bool int_active; //Shows whether or not the xml is currently parsing inside data
  */
 
 
-XMLParse::XMLParse()
+XMLParse::XMLParse() //This is only a constructor for the XMLParse class
 {
     subcount = 0;
     hostcount = 0;
@@ -37,41 +34,25 @@ XMLParse::XMLParse()
 }
 
 
-void XMLParse::Parse() //In the end, change so that it returns a populated system data structure to the main program. You can pass in the filepath when done.
+sys XMLParse::Parse(QString xmlFilePath) //This function returns a data structure that is populated with information from the SSV Schema xml. The file path to the xml schema will be required to be passed into the function at declaration.
 
 {
 
     QFile* file = new QFile(xmlFilePath);
 
 
-    if(!file->open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "Cannot Read XML";
-        return;
-    }
-
-    QXmlStreamReader xml(file);
-
-
     sys sys_1; //Initialization of the system data structure.
     qDebug() << "System structure initiated";//DEBUG
 
 
-    //EXAMPLE FOR HELP
+    if(!file->open(QIODevice::ReadOnly | QIODevice::Text)) // This will test if the xml schema is readable. If not, an empty data structure will be returned along with a debug message.
+    {
+        qDebug() << "Cannot Read XML";
+        return sys_1;
+    }
 
-   /*sys_1.subsystems.push_back(subsystem());
+    QXmlStreamReader xml(file);
 
-   sys_1.subsystems[0].hosts.push_back(host());
-
-   sys_1.subsystems[0].hosts[0].processes.push_back(process());
-
-   sys_1.subsystems[0].hosts[0].processes[0].procInterface.attributes.push_back(attribute());
-
-   sys_1.subsystems[0].hosts[0].processes[0].procInterface.attributes[0].key = "TEST";
-
-
-    qDebug()<< sys_1.subsystems[0].hosts[0].processes[0].procInterface.attributes[0].key;*/
-    //END EXAMPLE
 
 
 
@@ -147,124 +128,112 @@ void XMLParse::Parse() //In the end, change so that it returns a populated syste
 
             //COMMON SECTION: Tags in the xml that are located in different tiers of the SSV
 
-            if(xml.name() == "name") //Make cases for all sections for setting name
+            if(xml.name() == "name") //Check for name tag
             {
                 processName(sys_1, xml);
             }
 
-            if(xml.name() == "status_path") //Make cases for all sections for setting status_path
+            if(xml.name() == "status_path") //Check for status_path tag
             {
                 processStatus_Path(sys_1, xml);
             }
-
-
             //END COMMON SECTION
 
 
             //SHAPE SECTION: Tags that are synonymous with the shape of the SSV node
 
-            if(xml.name() == "style") //Make cases for all sections for setting style
+            if(xml.name() == "style") //Check for style tag
             {
                 processStyle(sys_1, xml);
             }
 
-            if(xml.name() == "color") //Make cases for all sections of setting color
+            if(xml.name() == "color") //Check for color tag
             {
                 processColor(sys_1, xml);
             }
 
-            if(xml.name() == "border") //Make cases for all sections of setting border
+            if(xml.name() == "border") //Check for border tag
             {
                 processBorder(sys_1, xml);
             }
 
-            if(xml.name() == "image_url") //Make cases for all sections of setting the image_url
+            if(xml.name() == "image_url") //Check for image_url tag
             {
                 processImage_URL(sys_1, xml);
             }
-
             //END SHAPE SECTION
 
 
             //HOST SECTION: Tags that are synonymous with the host sections of the SSV
 
-            if(xml.name() == "dns")
+            if(xml.name() == "dns") //Check for dns tag
             {
                 processDNS(sys_1, xml);
             }
-
-
-
             //END HOST SECTION
 
 
             //INTERFACE SECTION: Tags that are synonymous with the interface sections of the SSV
 
-
-            if(xml.name() == "label") //Make cases for all sections of setting interface label
+            if(xml.name() == "label") //Check for label tag
             {
                 processLabel(sys_1, xml);
             }
 
-            if(xml.name() == "target") //Make cases for all sections of setting interface target
+            if(xml.name() == "target") //Check for target tag
             {
                 processTarget(sys_1, xml);
             }
 
-            if(xml.name() == "direction") //Make cases for all sections of setting interface direction
+            if(xml.name() == "direction") //Check for direction tag
             {
                 processDirection(sys_1, xml);
             }
-
             //END INTERFACE SECTION
+
 
             //ATTRIBUTE SECTION: Tags that are synonymous with the attribute sections of the SSV
 
-            if(xml.name() == "key")
+            if(xml.name() == "key") //Check for key tag
             {
                 processKey(sys_1, xml);
             }
 
-            if(xml.name() == "type")
+            if(xml.name() == "type") //Check for type tag
             {
                 processType(sys_1, xml);
             }
 
-            if(xml.name() == "value")
+            if(xml.name() == "value") //Check for value tag
             {
                 processValue(sys_1, xml);
             }
-
-
             //END ATTRIBUTE SECTION
+
 
             //PROCESS SECTION: Tags that are synonymous with the process sections of the SSV
 
-            if(xml.name() == "group")
+            if(xml.name() == "group") //Check for group tag
             {
                 processGroup(sys_1, xml);
             }
-
             //END PROCESS SECTION
-            else
-            {
-                //xml.readNext();
-            }
+
         }
 
-        else if (token == QXmlStreamReader::EndElement)
+        else if (token == QXmlStreamReader::EndElement) //Check for end tag
         {
-            qDebug() << "FOUND END";
             processEndTag(sys_1, xml);
         }
 
-        else
-        {
-            //xml.readNext();
-        }
     }
 
+    return sys_1; //Returning the populated data structure
+
 }
+
+
+//BEGINNING OF TAG PROCESSING FUNCTIONS
 
 
 //PROGRAM FLAG SECTION
@@ -333,7 +302,6 @@ void XMLParse::processAtt(sys &sys_1)
         qDebug() << "Process Interface Attribute Recognized";//DEBUG
     }
 }
-
 //END PROGRAM FLAG SECTION
 
 
@@ -366,23 +334,35 @@ void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
         qDebug() << "Subsystem #" << subcount << "Interface Status Path:" << sys_1.subsystems[subcount].subInterface.status_path;//DEBUG
     }
 
+    if (!int_active && activesect == 1) // Case for checking for a host
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].status_path = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Status Path:" << sys_1.subsystems[subcount].hosts[hostcount].status_path;
+    }
+
+    if (int_active && activesect == 1) // Case for checking a host's interface
+    {
+        sys_1.subsystems[subcount].hosts[hostcount].hostInterface.status_path = xml.readElementText();
+        qDebug() << "Host #" << hostcount << " Interface Status Path:" << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.status_path;//DEBUG
+    }
+
     if (!int_active && activesect == 2) //Case for checking for a process
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path = xml.readElementText();
-        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;//DEBUG
+        qDebug() << "Process #" << proccount << " Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;//DEBUG
     }
 
     if (int_active && activesect == 2) //Case for checking for an active interface within a subsystem
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path = xml.readElementText();
-        qDebug() << "Process #" << proccount << "Process Status Path for Host #" << hostcount << "for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;//DEBUG
+        qDebug() << "Process #" << proccount << " Process Status Path for Host #" << hostcount << " for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;//DEBUG
     }
 }
-
 //END COMMON SECTION
 
 
 //SHAPE SECTION
+
 void XMLParse::processStyle(sys &sys_1, QXmlStreamReader &xml)
 {
     if (activesect == 0) //Check for subsystem
@@ -477,9 +457,7 @@ void XMLParse::processDNS(sys &sys_1, QXmlStreamReader &xml)
     sys_1.subsystems[subcount].hosts[hostcount].dns = xml.readElementText();
     qDebug() << "Host #" << hostcount << " dns:" << sys_1.subsystems[subcount].hosts[hostcount].dns;//DEBUG
 }
-
 //END HOST SECTION
-
 
 
 //INTERFACE SECTION
@@ -546,9 +524,7 @@ void XMLParse::processDirection(sys &sys_1, QXmlStreamReader &xml)
         qDebug() << "Process #" << proccount << "Interface Direction: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.direction;//DEBUG
     }
 }
-
 //END INTERFACE SECTION
-
 
 
 //ATTRIBUTE SECTION
@@ -615,8 +591,6 @@ void XMLParse::processValue(sys &sys_1, QXmlStreamReader &xml)
         qDebug() << "Value for attribute " << attcount << " for process #" << proccount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attributes[attcount].value;
     }
 }
-
-
 //END ATTRIBUTE SECTION
 
 
@@ -627,16 +601,40 @@ void XMLParse::processGroup(sys &sys_1, QXmlStreamReader &xml)
     sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].group = xml.readElementText();
     qDebug() << "Group for Process "<< proccount << " for host " << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].group;
 }
-
 //END PROCESS SECTION
 
 
+//END TAG SECTION
 void XMLParse::processEndTag(sys &sys_1, QXmlStreamReader &xml) //This is the code to handle the end tags of the xml file and to increase the appropriate counters
 {
     if (xml.name() == "attributes")
     {
         attcount = 0;
         qDebug() << "Attribute count reset!"; //DEBUG
+    }
+
+    if (xml.name() == "attribute")
+    {
+        if (inter_stat == 0) //Check for subsystem interface
+        {
+            sys_1.subsystems[subcount].subInterface.attcount++;
+            attcount++;
+            qDebug() << "Subsystem Attribute #" << attcount-1 << " complete! Starting Subsystem Attribute#" << attcount; //DEBUG
+        }
+
+        if (inter_stat == 1) //Check for host interface
+        {
+            sys_1.subsystems[subcount].hosts[hostcount].hostInterface.attcount++;
+            attcount++;
+            qDebug() << "Host Attribute #" << attcount-1 << " complete! Starting Host Attribute#" << attcount; //DEBUG
+        }
+
+        if (inter_stat == 2) //Check for process interface
+        {
+            sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.attcount++;
+            attcount++;
+            qDebug() << "Process Attribute #" << attcount-1 << " complete! Starting Process Attribute#" << attcount; //DEBUG
+        }
     }
 
     if (xml.name() == "subsystem")
