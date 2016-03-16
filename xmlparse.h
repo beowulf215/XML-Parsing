@@ -9,6 +9,18 @@
 #include <QTextCodec>
 
 //Data Structures for the System Status Viewer
+
+struct info //The info data structure is designed to easily show the locations of each host and process in the data structure
+{
+    QString hostname;
+    QString hostdns;
+    QString procname;
+    int subindex;
+    int hostindex;
+    int procindex;
+};
+
+
 struct shape
 {
     QString style;
@@ -70,6 +82,7 @@ struct sys
 {
     int subsyscnt;
     QVector<subsystem> subsystems; //Dynamic array of subsystem structures
+    QVector<info> index; //Dynamic array to keep track of host+process locations for UI generation purposes
 };
 
 

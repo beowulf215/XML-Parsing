@@ -6,6 +6,7 @@ int proccount;
 int attcount;
 int activesect; //Shows which area the code is parsing from in the xml
 int inter_stat; //Shows which interface is being read in the xml
+int infoindex; //Index value for the index data structure for system bookkeeping
 
 bool int_active; //Shows whether or not the xml is currently parsing inside data from an interface
 
@@ -30,6 +31,7 @@ XMLParse::XMLParse() //This is only a constructor for the XMLParse class
     attcount = 0;
     activesect = 0;
     inter_stat = 0;
+    infoindex = -1; //Set to -1 for once a spot is pushed back on the index array, it will increment and the first value will be on index 0
     int_active = false;
 }
 
@@ -228,6 +230,16 @@ sys XMLParse::Parse(QString xmlFilePath) //This function returns a data structur
 
     }
 
+    for (int i = 0; i <= infoindex; i++)
+    {
+        qDebug() << "Subindex: " << sys_1.index[i].subindex << "  Hostindex: " << sys_1.index[i].hostindex << " Procindex: "
+                 << sys_1.index[i].procindex << " Host Name: " << sys_1.index[i].hostname << " Host DNS: " << sys_1.index[i].hostdns
+                 << " Process Name: " << sys_1.index[i].procname;
+    }
+
+
+
+
     return sys_1; //Returning the populated data structure
 
 }
@@ -251,6 +263,8 @@ void XMLParse::processHost(sys &sys_1)
     sys_1.subsystems[subcount].hosts.push_back(host());
     activesect = 1;
     qDebug() << "Host Recognized";//DEBUG
+    sys_1.index.push_back(info()); //Establish new entry for index for host
+    infoindex++; //Increment index for bookkeeping
 }
 
 void XMLParse::processProc(sys &sys_1)
@@ -258,6 +272,8 @@ void XMLParse::processProc(sys &sys_1)
     sys_1.subsystems[subcount].hosts[hostcount].processes.push_back(process());
     activesect = 2;
     qDebug() << "Process Recognized";//DEBUG
+    sys_1.index.push_back(info()); //Establish new entry for index for process
+    infoindex++; //Increment index for bookkeeping
 }
 
 
@@ -318,11 +334,25 @@ void XMLParse::processName(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].hosts[hostcount].name = xml.readElementText();
         qDebug() << "Host #" << hostcount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].name;//DEBUG
+
+        //Index entry for host
+        sys_1.index[infoindex].subindex = subcount;
+        sys_1.index[infoindex].hostindex = hostcount;
+        sys_1.index[infoindex].procindex = -1; //The -1 signifies that the index is not catorizing a process at the moment
+        sys_1.index[infoindex].hostname = sys_1.subsystems[subcount].hosts[hostcount].name;
+        //End of index entry
+
     }
     else if (activesect == 2) //Check for process
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].name = xml.readElementText();
         qDebug() << "Process #" << proccount << " name:" << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].name;//DEBUG
+        //Index entry for host
+        sys_1.index[infoindex].subindex = subcount;
+        sys_1.index[infoindex].hostindex = hostcount;
+        sys_1.index[infoindex].procindex = proccount;
+        sys_1.index[infoindex].procname = sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].name;
+        //End of index entry
     }
 }
 
@@ -456,6 +486,12 @@ void XMLParse::processDNS(sys &sys_1, QXmlStreamReader &xml)
 {
     sys_1.subsystems[subcount].hosts[hostcount].dns = xml.readElementText();
     qDebug() << "Host #" << hostcount << " dns:" << sys_1.subsystems[subcount].hosts[hostcount].dns;//DEBUG
+    //Index entry for host
+    sys_1.index[infoindex].subindex = subcount;
+    sys_1.index[infoindex].hostindex = hostcount;
+    sys_1.index[infoindex].procindex = -1; //The -1 signifies that the index is not catorizing a process at the moment
+    sys_1.index[infoindex].hostdns = sys_1.subsystems[subcount].hosts[hostcount].dns;
+    //End of index entry
 }
 //END HOST SECTION
 
