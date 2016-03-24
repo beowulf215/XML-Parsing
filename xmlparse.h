@@ -7,6 +7,8 @@
 #include <QDir>
 #include <QVector>
 #include <QTextCodec>
+#include <QNetworkInterface>
+#include <QHostInfo>
 
 //Data Structures for the System Status Viewer
 
@@ -15,6 +17,8 @@ struct info //The info data structure is designed to easily show the locations o
     QString hostname;
     QString hostdns;
     QString procname;
+    QString ifacelabel;
+    QString ifacetarget;
     int subindex;
     int hostindex;
     int procindex;
@@ -98,7 +102,7 @@ public:
     //FLAG SECTION
     void processSubsystem(sys &sys_1);
     void processHost(sys &sys_1);
-    void processInterface();
+    void processInterface(sys &sys_1);
     void processProc(sys &sys_1);
     void processAtt(sys &sys_1);
     //END FLAG

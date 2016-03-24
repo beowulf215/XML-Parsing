@@ -115,7 +115,7 @@ sys XMLParse::Parse(QString xmlFilePath) //This function returns a data structur
 
             if(xml.name() == "interface")//Interface Parsing Rule
             {
-                processInterface();
+                processInterface(sys_1);
             }
 
             if(xml.name() == "process")//Process Parsing Rule
@@ -234,11 +234,15 @@ sys XMLParse::Parse(QString xmlFilePath) //This function returns a data structur
     {
         qDebug() << "Subindex: " << sys_1.index[i].subindex << "  Hostindex: " << sys_1.index[i].hostindex << " Procindex: "
                  << sys_1.index[i].procindex << " Host Name: " << sys_1.index[i].hostname << " Host DNS: " << sys_1.index[i].hostdns
-                 << " Process Name: " << sys_1.index[i].procname;
+                 << " Process Name: " << sys_1.index[i].procname << " Interface Label: " << sys_1.index[i].ifacelabel
+                 << " Interface Target: " <<  sys_1.index[i].ifacetarget;
     }
 
+    //TESTING FOR FINDING IP
 
+    qDebug() << QHostInfo::localHostName();
 
+    //END TESTING IP
 
     return sys_1; //Returning the populated data structure
 
@@ -277,7 +281,7 @@ void XMLParse::processProc(sys &sys_1)
 }
 
 
-void XMLParse::processInterface()
+void XMLParse::processInterface(sys &sys_1)
 {
     int_active = true;
 
@@ -285,6 +289,8 @@ void XMLParse::processInterface()
     {
         inter_stat = 0;
         qDebug() << "Subsystem Interface Recognized";//DEBUG
+        sys_1.index.push_back(info()); //Establish new entry for index for subsystem
+        infoindex++; //Increment index for bookkeeping
     }
     else if (activesect == 1)
     {
@@ -489,7 +495,7 @@ void XMLParse::processDNS(sys &sys_1, QXmlStreamReader &xml)
     //Index entry for host
     sys_1.index[infoindex].subindex = subcount;
     sys_1.index[infoindex].hostindex = hostcount;
-    sys_1.index[infoindex].procindex = -1; //The -1 signifies that the index is not catorizing a process at the moment
+    sys_1.index[infoindex].procindex = -1; //The -1 signifies that the index is not catagorizing a process at the moment
     sys_1.index[infoindex].hostdns = sys_1.subsystems[subcount].hosts[hostcount].dns;
     //End of index entry
 }
@@ -504,18 +510,33 @@ void XMLParse::processLabel(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subInterface.label = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " Interface Label: " << sys_1.subsystems[subcount].subInterface.label;//DEBUG
+
+        //Start of interface label indexing
+        sys_1.index[infoindex].ifacelabel = sys_1.subsystems[subcount].subInterface.label;
+        sys_1.index[infoindex].subindex = subcount;
+        sys_1.index[infoindex].hostindex = -1;//The -1 signifies that the index is not catagorizing a host at the moment
+        sys_1.index[infoindex].procindex = -1;//The -1 signifies that the index is not catagorizing a process at the moment
+        //End of interface label indexing
     }
 
     if (inter_stat == 1) //Check for host interface
     {
         sys_1.subsystems[subcount].hosts[hostcount].hostInterface.label = xml.readElementText();
         qDebug() << "Host #" << hostcount << " Interface Label: " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.label;//DEBUG
+
+        //Start of interface label indexing
+        sys_1.index[infoindex].ifacelabel = sys_1.subsystems[subcount].hosts[hostcount].hostInterface.label;
+        //End of interface label indexing
     }
 
     if (inter_stat == 2) //Check for process interface
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.label = xml.readElementText();
         qDebug() << "Process #" << proccount << " Interface Label: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.label;//DEBUG
+
+        //Start of interface label indexing
+        sys_1.index[infoindex].ifacelabel = sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.label;
+        //End of interface label indexing
     }
 }
 
@@ -525,18 +546,30 @@ void XMLParse::processTarget(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subInterface.target = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << " Interface Target: " << sys_1.subsystems[subcount].subInterface.target;//DEBUG
+
+        //Start of interface target indexing for subsystem
+        sys_1.index[infoindex].ifacetarget = sys_1.subsystems[subcount].subInterface.target;
+        //End of interface target indexing
     }
 
     if (inter_stat == 1) //Check for host interface
     {
         sys_1.subsystems[subcount].hosts[hostcount].hostInterface.target = xml.readElementText();
         qDebug() << "Host #" << hostcount << " Interface Target: " << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.target;//DEBUG
+
+        //Start of interface target indexing for host
+        sys_1.index[infoindex].ifacetarget = sys_1.subsystems[subcount].hosts[hostcount].hostInterface.target;
+        //End of interface target indexing
     }
 
     if (inter_stat == 2) //Check for process interface
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.target= xml.readElementText();
         qDebug() << "Process #" << proccount << " Interface Target: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.target;//DEBUG
+
+        //Start of interface target indexing for process
+        sys_1.index[infoindex].ifacetarget = sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.target;
+        //End of interface target indexing
     }
 }
 
