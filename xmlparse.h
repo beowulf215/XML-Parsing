@@ -17,8 +17,10 @@ struct info //The info data structure is designed to easily show the locations o
     QString hostname;
     QString hostdns;
     QString procname;
+    QString statuspath;
     QString ifacelabel;
     QString ifacetarget;
+    QString ifstatpath;
     int subindex;
     int hostindex;
     int procindex;

@@ -232,17 +232,18 @@ sys XMLParse::Parse(QString xmlFilePath) //This function returns a data structur
 
     for (int i = 0; i <= infoindex; i++)
     {
-        qDebug() << "Subindex: " << sys_1.index[i].subindex << "  Hostindex: " << sys_1.index[i].hostindex << " Procindex: "
-                 << sys_1.index[i].procindex << " Host Name: " << sys_1.index[i].hostname << " Host DNS: " << sys_1.index[i].hostdns
-                 << " Process Name: " << sys_1.index[i].procname << " Interface Label: " << sys_1.index[i].ifacelabel
-                 << " Interface Target: " <<  sys_1.index[i].ifacetarget;
+        qDebug() << "\nSubindex: " << sys_1.index[i].subindex
+                 << " Hostindex: " << sys_1.index[i].hostindex
+                 << " Procindex: " << sys_1.index[i].procindex
+                 << " Host Name: " << sys_1.index[i].hostname
+                 << " Host DNS: " << sys_1.index[i].hostdns
+                 << " Process Name: " << sys_1.index[i].procname
+                 << " Status_Path: " << sys_1.index[i].statuspath
+                 << " Interface Label: " << sys_1.index[i].ifacelabel
+                 << " Interface Target: " <<  sys_1.index[i].ifacetarget
+                 << " Interface Status_Path: " << sys_1.index[i].ifstatpath
+                 << "\n";
     }
-
-    //TESTING FOR FINDING IP
-
-    qDebug() << QHostInfo::localHostName();
-
-    //END TESTING IP
 
     return sys_1; //Returning the populated data structure
 
@@ -368,30 +369,35 @@ void XMLParse::processStatus_Path(sys &sys_1, QXmlStreamReader &xml)
     {
         sys_1.subsystems[subcount].subInterface.status_path = xml.readElementText();
         qDebug() << "Subsystem #" << subcount << "Interface Status Path:" << sys_1.subsystems[subcount].subInterface.status_path;//DEBUG
+        sys_1.index[infoindex].ifstatpath = sys_1.subsystems[subcount].subInterface.status_path;
     }
 
     if (!int_active && activesect == 1) // Case for checking for a host
     {
         sys_1.subsystems[subcount].hosts[hostcount].status_path = xml.readElementText();
         qDebug() << "Host #" << hostcount << " Status Path:" << sys_1.subsystems[subcount].hosts[hostcount].status_path;
+        sys_1.index[infoindex].statuspath = sys_1.subsystems[subcount].hosts[hostcount].status_path;
     }
 
     if (int_active && activesect == 1) // Case for checking a host's interface
     {
         sys_1.subsystems[subcount].hosts[hostcount].hostInterface.status_path = xml.readElementText();
         qDebug() << "Host #" << hostcount << " Interface Status Path:" << sys_1.subsystems[subcount].hosts[hostcount].hostInterface.status_path;//DEBUG
+        sys_1.index[infoindex].ifstatpath = sys_1.subsystems[subcount].hosts[hostcount].hostInterface.status_path;
     }
 
     if (!int_active && activesect == 2) //Case for checking for a process
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path = xml.readElementText();
         qDebug() << "Process #" << proccount << " Process Status Path for Host #" << hostcount << ": " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;//DEBUG
+        sys_1.index[infoindex].statuspath = sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].status_path;
     }
 
     if (int_active && activesect == 2) //Case for checking for an active interface within a subsystem
     {
         sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path = xml.readElementText();
         qDebug() << "Process #" << proccount << " Process Status Path for Host #" << hostcount << " for Process Interface: " << sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;//DEBUG
+        sys_1.index[infoindex].ifstatpath = sys_1.subsystems[subcount].hosts[hostcount].processes[proccount].procInterface.status_path;
     }
 }
 //END COMMON SECTION
